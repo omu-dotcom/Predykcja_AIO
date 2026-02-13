@@ -18,12 +18,12 @@ def main():
     # Load model
     @st.cache_resource
     def load_model():
-        if not os.path.exists('aio_model.pkl'):
-            st.error("⚠️ Brak pliku 'aio_model.pkl'.")
+        if not os.path.exists('aio_model_v2.pkl'):
+            st.error("⚠️ Brak pliku 'aio_model_v2.pkl'.")
             return None
         
         try:
-            with open('aio_model.pkl', 'rb') as f:
+            with open('aio_model_v2.pkl', 'rb') as f:
                 return pickle.load(f)
         except Exception as e:
             st.error(f"❌ Błąd wczytywania modelu: {e}")
