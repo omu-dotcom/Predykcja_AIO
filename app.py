@@ -54,24 +54,56 @@ def main():
             if not query:
                 st.warning("Wpisz frazę!")
             else:
-                # Feature extraction (SAME LOGIC AS TRAINING)
+                # Feature extraction (MATCHING TRAIN_MODEL.PY)
                 features = {}
+                q_lower = query.lower()
                 
-                # Linguistic stats
-                features['word_count'] = len(query.split())
-                features['char_count'] = len(query)
+                # 1. Basic Length Metrics
+                words = q_lower.split()
+                features['word_count'] = len(words)
+                features['char_count'] = len(q_lower)
+                # Calculate avg_word_len safely
+                if len(words) > 0:
+                    features['avg_word_len'] = sum(len(w) for w in words) / len(words)
+                else:
+                    features['avg_word_len'] = 0
                 
-                # Question words
-                question_words = ['jak', 'gdzie', 'kiedy', 'dlaczego', 'co', 'ile', 'kto', 'czy']
-                for qw in question_words:
-                    features[f'is_{qw}'] = 1 if query.lower().startswith(qw + ' ') or query.lower() == qw else 0
-                    
-                # Intent words
-                intent_words = ['cena', 'opinia', 'ranking', 'najlepszy', 'tani', 'sklep', 'kup']
-                for iw in intent_words:
-                    features[f'has_{iw}'] = 1 if iw in query.lower() else 0
-                    
-                # Create DataFrame with correct column order
+                features['is_long_tail'] = 1 if len(words) > 4 else 0
+                
+                # 2. Question Types
+                question_words = {
+                    'jak': 'how', 
+                    'gdzie': 'where', 
+                    'kiedy': 'when', 
+                    'dlaczego': 'why', 
+                    'co': 'what', 
+                    'ile': 'how_much', 
+                    'kto': 'who', 
+                    'czy': 'is_it',
+                    'jaki': 'which'
+                }
+                is_any_question = 0
+                for pl, en in question_words.items():
+                    val = 1 if q_lower.startswith(pl + ' ') or q_lower == pl else 0
+                    features[f'q_{en}'] = val
+                    if val: is_any_question = 1
+                features['is_question'] = is_any_question
+
+                # 3. Informational Intent
+                info_words = ['znaczenie', 'definicja', 'powody', 'objawy', 'zasady', 'historia', 'opis', 'przepis', 'poradnik', 'instrukcja']
+                features['intent_info'] = sum(1 for w in info_words if w in q_lower)
+
+                # 4. Transactional Intent
+                comm_words = ['cena', 'koszt', 'tanio', 'sklep', 'gdzie kupić', 'opinie', 'ranking', 'najlepszy', 'promocja', 'wyprzedaż']
+                features['intent_transactional'] = sum(1 for w in comm_words if w in q_lower)
+                
+                # 5. Entities
+                import re
+                features['has_number'] = 1 if re.search(r'\d', q_lower) else 0
+                features['has_year'] = 1 if re.search(r'20\d{2}', q_lower) else 0
+                features['has_step_words'] = 1 if re.search(r'krok po kroku|jak zrobić|jak naprawić', q_lower) else 0
+                
+                # Create DataFrame
                 input_df = pd.DataFrame([features])
                 
                 # Ensure all columns from training exist (fill missing with 0)
