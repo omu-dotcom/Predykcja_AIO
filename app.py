@@ -83,8 +83,26 @@ def main():
                 input_df = input_df[feature_names]
                 
                 # Predict
-                proba = model.predict_proba(input_df)[0][1] # Probability of class 1 (AIO present)
-                prediction = int(proba * 100)
+                try:
+                    proba_array = model.predict_proba(input_df)
+                    
+                    # Handle cases where model only learned one class (e.g., all data was 0 or all was 1)
+                    if proba_array.shape[1] == 2:
+                        proba = proba_array[0][1]
+                    else:
+                        # Only one class present
+                        learned_class = model.classes_[0]
+                        if learned_class == 1:
+                            proba = 1.0
+                        else:
+                            proba = 0.0
+                        
+                        st.warning(f"⚠️ Uwaga: Model został wytrenowany na danych zawierających tylko jedną klasę ({learned_class}). Wynik zawsze będzie taki sam.")
+
+                    prediction = int(proba * 100)
+                except Exception as e:
+                    st.error(f"Błąd predykcji: {e}")
+                    prediction = 0
                 
                 # Display result
                 st.divider()
