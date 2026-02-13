@@ -14,11 +14,25 @@ st.set_page_config(
 @st.cache_resource
 def load_model():
     if not os.path.exists('aio_model.pkl'):
+        st.error("⚠️ Brak pliku 'aio_model.pkl'. Upewnij się, że został wgrany do repozytorium.")
         return None
-    with open('aio_model.pkl', 'rb') as f:
-        return pickle.load(f)
+    
+    try:
+        with open('aio_model.pkl', 'rb') as f:
+            return pickle.load(f)
+    except Exception as e:
+        st.error(f"❌ Błąd wczytywania modelu: {e}")
+        import sklearn
+        import sys
+        st.write(f"System Python: {sys.version}")
+        st.write(f"Scikit-learn: {sklearn.__version__}")
+        return None
 
-model_data = load_model()
+try:
+    model_data = load_model()
+except Exception as e:
+    st.error(f"Krytyczny błąd aplikacji: {e}")
+    model_data = None
 
 # Header
 st.title("🤖 Predykcja wystąpienia Google AI Overview")
