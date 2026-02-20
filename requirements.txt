@@ -1,0 +1,17 @@
+# AI Overviews Predictor - Wymagane pakiety
+
+# Core ML
+scikit-learn>=1.3.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Web framework (dla API)
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Streamlit (dla aplikacji webowej)
+streamlit>=1.28.0
+plotly>=5.17.0
+
+# Utilities
+pickle5>=0.0.11
