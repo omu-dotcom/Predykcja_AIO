@@ -1,0 +1,6 @@
+pandas
+openpyxl
+scikit-learn
+streamlit>=1.35.0
+numpy
+altair<6
